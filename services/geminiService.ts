@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Modality } from "@google/genai";
 
 const API_KEY = process.env.API_KEY;
@@ -8,19 +7,62 @@ if (!API_KEY) {
 }
 const ai = new GoogleGenAI({ apiKey: API_KEY! });
 
-const EDITING_PROMPT = `You are a Professional LinkedIn Photo Editor AI.
+const getBackgroundInstruction = (style: string): string => {
+    switch (style) {
+        case 'Office':
+            return 'Replace the background with a softly blurred, professional office setting. The environment should look bright and welcoming.';
+        case 'Modern':
+            return 'Replace the background with a minimalist modern interior, featuring clean lines and neutral colors (like greys, whites, or beiges).';
+        case 'Textured':
+            return 'Replace the background with a wall featuring a subtle, elegant texture. Good options are light-colored brick, soft wood paneling, or brushed concrete.';
+        case 'AI Choice':
+        default:
+            return 'Replace the background with a professional and subtle one. Good options include a softly blurred office setting, a minimalist modern interior, or a wall with subtle texture (like light-colored brick or wood paneling). The background should look realistic and not distracting. Avoid plain, solid-color backgrounds.';
+    }
+};
+
+export const enhanceProfilePicture = async (
+    base64ImageData: string, 
+    mimeType: string, 
+    backgroundStyle: string,
+    adjustBrightness: boolean,
+    smoothSkin: boolean
+): Promise<string> => {
+    try {
+        const rules = [
+            "**Hair Integrity is Crucial**: Keep the original hairstyle completely intact. Do not cut, shorten, add, or erase hair. The goal is to preserve the hair's natural volume, depth, and flow. The edit must maintain the highlights and shadows that give hair its dimension. Avoid making it look plastic, overly smoothed, flat, or like a wig. Tame only minor, distracting flyaways, but ensure the overall texture remains lifelike and authentic."
+        ];
+
+        if (adjustBrightness) {
+            rules.push("**Natural Skin & Lighting**: Adjust lighting, skin tone, and contrast for a natural but polished look. The skin should look healthy and smooth, but retain its natural texture.");
+        } else {
+            rules.push("**Preserve Lighting**: Maintain the original lighting, contrast, and skin tone as closely as possible. Do not make any automatic adjustments.");
+        }
+
+        if (smoothSkin) {
+            rules.push('**Subtle Facial Retouching**: Gently reduce distracting elements like temporary blemishes, under-eye bags, and excessive wrinkles. The goal is to make the person look well-rested and refreshed, not to alter their fundamental appearance or age. Avoid overly smooth, "airbrushed" skin.');
+        } else {
+            rules.push("**No Facial Retouching**: Do not perform any facial retouching, skin smoothing, or removal of wrinkles/blemishes. Preserve the original facial features and skin texture completely.");
+        }
+        
+        const backgroundInstruction = getBackgroundInstruction(backgroundStyle);
+        rules.push(`**Professional Background**: ${backgroundInstruction}`);
+        
+        rules.push(
+            '**Subject-Background Harmony**: The new background must blend seamlessly with the person. The lighting (direction, warmth, softness) on the subject must match the background. The background colors should complement the person\'s skin tone and clothing. Ensure edges, especially around hair, are soft and natural to avoid a "cut-out" look.',
+            "**Clothing Enhancement**: Smooth clothing edges and enhance sharpness. Remove minor wrinkles or lint if possible, but do not replace or distort the outfit.",
+            "**Authenticity is Key**: Avoid making the photo look “AI-generated” or plastic. The final result must look like a real, high-quality camera photo.",
+            "**Preserve Identity**: Always maintain the original face structure and identity. The person must be instantly recognizable."
+        );
+
+        const numberedRules = rules.map((rule, index) => `${index + 1}. ${rule}`).join('\n');
+
+        const finalPrompt = `You are a Professional LinkedIn Photo Editor AI.
 Your job is to enhance profile photos while keeping the person’s natural identity, hairstyle, and facial features intact.
 
 Editing rules:
-1. Keep the hairstyle as it is, do not cut, shorten, or erase hair. Ensure the person does not look bald.
-2. Adjust lighting, skin tone, and contrast for a natural but polished look.
-3. Clean background to a neutral professional shade (light gray, soft blue, or white).
-4. Smooth clothing edges and enhance sharpness, but do not replace or distort the outfit.
-5. Avoid making the photo look “AI-generated” or plastic. It should look like a real, high-quality camera photo.
-6. Always maintain the original face structure and identity.`;
+${numberedRules}`;
 
-export const enhanceProfilePicture = async (base64ImageData: string, mimeType: string): Promise<string> => {
-    try {
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash-image-preview',
             contents: {
@@ -32,7 +74,7 @@ export const enhanceProfilePicture = async (base64ImageData: string, mimeType: s
                         },
                     },
                     {
-                        text: EDITING_PROMPT,
+                        text: finalPrompt,
                     },
                 ],
             },
