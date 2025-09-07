@@ -30,7 +30,11 @@ export const enhanceProfilePicture = async (
 ): Promise<string> => {
     try {
         const rules = [
-            "**Hair Integrity is Crucial**: Keep the original hairstyle completely intact. Do not cut, shorten, add, or erase hair. The goal is to preserve the hair's natural volume, depth, and flow. The edit must maintain the highlights and shadows that give hair its dimension. Avoid making it look plastic, overly smoothed, flat, or like a wig. Tame only minor, distracting flyaways, but ensure the overall texture remains lifelike and authentic."
+            `**CRITICAL RULE: PRESERVE NATURAL HAIR - NON-NEGOTIABLE**: This is the single most important rule. Failure to follow this rule perfectly will result in a failed image.
+- **DO NOT CHANGE THE HAIRSTYLE**: Keep the original style, length, and shape. Do not cut, shorten, or erase hair.
+- **MAINTAIN VOLUME & DYNAMIC TEXTURE**: The hair MUST have natural volume, depth, and flow. It absolutely cannot look flat, matted, "painted on," or like a helmet. This is a common AI failure—avoid it at all costs.
+- **PRESERVE HIGHLIGHTS & SHADOWS**: The natural play of light is essential for realism. Maintain the existing highlights and shadows to give the hair dimension and a lifelike quality.
+- **AUTHENTICITY OVER PERFECTION**: Tame only the most distracting flyaways. Preserving the natural texture is more important than creating an overly smooth, artificial look. If the hair looks fake, the entire edit is a failure.`
         ];
 
         if (adjustBrightness) {

@@ -95,6 +95,11 @@ const ImageWorkspace: React.FC = () => {
         setIsLoading(false);
     };
 
+    const resetFineTuneAdjustments = () => {
+        setAdjustBrightness(true);
+        setSmoothSkin(true);
+    };
+
     if (!originalImagePreview) {
         return (
             <div className="w-full max-w-2xl mx-auto bg-gray-800 border-2 border-dashed border-gray-600 rounded-xl p-8 text-center flex flex-col items-center justify-center h-80 hover:border-blue-500 transition-colors duration-300">
@@ -165,7 +170,16 @@ const ImageWorkspace: React.FC = () => {
             </div>
 
             <div className="mt-6 text-center max-w-2xl mx-auto p-4 border border-gray-700 rounded-lg bg-gray-800/50">
-                <h4 className="text-lg font-semibold text-gray-300 mb-4">Fine-Tune Adjustments</h4>
+                <div className="flex justify-between items-center mb-4">
+                    <h4 className="text-lg font-semibold text-gray-300">Fine-Tune Adjustments</h4>
+                    <button
+                        onClick={resetFineTuneAdjustments}
+                        className="px-3 py-1 text-xs font-medium text-indigo-300 bg-indigo-900/50 rounded-md hover:bg-indigo-900 transition-colors"
+                        aria-label="Reset fine-tune adjustments to default"
+                    >
+                        Reset Adjustments
+                    </button>
+                </div>
                 <div className="flex flex-col sm:flex-row justify-center items-start sm:items-center gap-4 sm:gap-8">
                     <label className="flex items-center space-x-3 cursor-pointer group">
                         <input
